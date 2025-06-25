@@ -860,6 +860,41 @@
             .venue-features {
                 grid-template-columns: 1fr;
             }
+
+            /* Ensure animations still work on mobile but are optimized */
+            .scroll-reveal {
+                opacity: 0;
+                transform: translateY(30px); /* Reduced movement */
+                transition: all 0.6s ease; /* Faster transition */
+            }
+
+            .scroll-reveal.revealed {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Keep essential hover effects but make them lighter */
+            .about-card:hover,
+            .speaker-card:hover {
+                transform: translateY(-5px) scale(1.01); /* Reduced movement */
+            }
+
+            .timeline-item:hover {
+                transform: translateX(5px) scale(1.01); /* Reduced movement */
+            }
+
+            /* Optimize particles for mobile */
+            .particle {
+                width: 2px;
+                height: 2px;
+                opacity: 0.3;
+            }
+
+            /* Simplify floating shapes */
+            .floating-shape {
+                opacity: 0.03;
+                animation-duration: 15s;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1157,18 +1192,18 @@
     </footer>
 
     <script>
-        // Create floating particles
+        // Create floating particles with mobile optimization
         function createParticles() {
             const container = document.querySelector('.hero-particles');
-            const particleCount = 50;
+            const particleCount = window.innerWidth < 768 ? 25 : 50; // Fewer particles on mobile
             
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDuration = (Math.random() * 20 + 10) + 's';
+                particle.style.animationDuration = (Math.random() * 20 + 15) + 's'; // Slightly slower on mobile
                 particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.opacity = Math.random() * 0.5 + 0.2;
+                particle.style.opacity = Math.random() * 0.4 + 0.1; // More subtle on mobile
                 container.appendChild(particle);
             }
         }
@@ -1234,34 +1269,49 @@
         // Initialize particles
         createParticles();
 
-        // Add dynamic gradient animation to hero
-        let gradientStep = 0;
-        setInterval(() => {
-            gradientStep += 1;
-            const hero = document.querySelector('.hero');
-            hero.style.filter = `hue-rotate(${gradientStep}deg)`;
-        }, 100);
+        // Add dynamic gradient animation to hero (mobile-optimized)
+        if (window.innerWidth >= 768) {
+            let gradientStep = 0;
+            setInterval(() => {
+                gradientStep += 1;
+                const hero = document.querySelector('.hero');
+                hero.style.filter = `hue-rotate(${gradientStep}deg)`;
+            }, 100);
+        }
 
-        // Performance optimization: reduce animations on mobile
+        // Mobile-friendly animations - keep essential ones, optimize performance
         if (window.innerWidth < 768) {
-            document.querySelectorAll('.floating-shape, .particle').forEach(el => {
-                el.style.animation = 'none';
+            // Reduce particle count on mobile
+            document.querySelectorAll('.particle').forEach((particle, index) => {
+                if (index > 20) { // Keep only 20 particles on mobile
+                    particle.remove();
+                }
+            });
+            
+            // Simplify floating shapes animation
+            document.querySelectorAll('.floating-shape').forEach(el => {
+                el.style.animationDuration = '12s'; // Slower animation
+                el.style.opacity = '0.05'; // More subtle
             });
         }
 
-        // Add typing effect to hero title (optional enhancement)
+        // Add typing effect to hero title with mobile detection
         const heroTitle = document.querySelector('.hero h1');
         const originalTitle = heroTitle.textContent;
-        heroTitle.textContent = '';
         
-        let i = 0;
-        const typeInterval = setInterval(() => {
-            heroTitle.textContent = originalTitle.slice(0, i);
-            i++;
-            if (i > originalTitle.length) {
-                clearInterval(typeInterval);
-            }
-        }, 100);
+        // Only add typing effect on desktop for better mobile performance
+        if (window.innerWidth >= 768) {
+            heroTitle.textContent = '';
+            
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                heroTitle.textContent = originalTitle.slice(0, i);
+                i++;
+                if (i > originalTitle.length) {
+                    clearInterval(typeInterval);
+                }
+            }, 100);
+        }
     </script>
 </body>
 </html>
