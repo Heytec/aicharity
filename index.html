@@ -1512,163 +1512,156 @@
         </div>
     </footer>
 
-   <script>
-/* ──────────────────────────────────────────────────────────────
+ <script>
+/* ─────────────────────────────────────────
    1. COUNTDOWN TIMER  (unchanged)
-────────────────────────────────────────────────────────────── */
+────────────────────────────────────────── */
 function updateCountdown(){
-  const eventDate = new Date('October 9, 2025 09:00:00').getTime();
-  const now       = Date.now();
-  const d         = eventDate - now;
-  const days    = Math.floor(d / 864e5);
-  const hours   = Math.floor(d % 864e5 / 36e5);
-  const minutes = Math.floor(d % 36e5 / 6e4);
-  const seconds = Math.floor(d % 6e4 / 1e3);
-  document.getElementById('days').textContent    = days;
-  document.getElementById('hours').textContent   = hours;
-  document.getElementById('minutes').textContent = minutes;
-  document.getElementById('seconds').textContent = seconds;
-  if (d < 0){
-    document.getElementById('countdown').innerHTML =
-      '<div class="countdown-item"><span class="countdown-number">Event Started!</span></div>';
-  }
+  const eventDate=new Date('October 9, 2025 09:00:00').getTime();
+  const now=Date.now(), d=eventDate-now;
+  const days=Math.floor(d/864e5), hours=Math.floor(d%864e5/36e5),
+        minutes=Math.floor(d%36e5/6e4), seconds=Math.floor(d%6e4/1e3);
+  document.getElementById('days').textContent=days;
+  document.getElementById('hours').textContent=hours;
+  document.getElementById('minutes').textContent=minutes;
+  document.getElementById('seconds').textContent=seconds;
+  if(d<0) document.getElementById('countdown').innerHTML=
+    '<div class="countdown-item"><span class="countdown-number">Event Started!</span></div>';
 }
-setInterval(updateCountdown, 1000);
-updateCountdown();
+setInterval(updateCountdown,1e3); updateCountdown();
 
-/* ──────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────
    2. NAV + PROGRESS BAR  (unchanged)
-────────────────────────────────────────────────────────────── */
+────────────────────────────────────────── */
 function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('active');}
 function updateProgressBar(){
-  const st = document.documentElement.scrollTop || document.body.scrollTop;
-  const sh = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  document.querySelector('.progress-bar').style.width = (st / sh) * 100 + '%';
+  const st=document.documentElement.scrollTop||document.body.scrollTop,
+        sh=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  document.querySelector('.progress-bar').style.width=st/sh*100+'%';
 }
-function updateNavBackground(){document.getElementById('header').classList.toggle('scrolled', window.pageYOffset > 50);}
-window.addEventListener('scroll', ()=>{updateProgressBar();updateNavBackground();});
+function updateNavBackground(){document.getElementById('header').classList.toggle('scrolled',window.pageYOffset>50);}
+window.addEventListener('scroll',()=>{updateProgressBar();updateNavBackground();});
 
-/* ──────────────────────────────────────────────────────────────
-   3. NEURAL-NETWORK SPRAY
-────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────
+   3. NEURAL-NETWORK SPRAY + ONE-TIME BURST
+────────────────────────────────────────── */
 
 /* layout helpers */
-const CM2PX = 96 / 2.54;                 // ≈ 37.8 px per cm
-const OFF_X = 9 * CM2PX;                 // 9 cm in from right
-const OFF_Y = 9 * CM2PX;                 // 9 cm down from top
+const CM2PX=96/2.54, OFF_X=9*CM2PX, OFF_Y=9*CM2PX;
 
 /* spray parameters */
-const ANGLE        = Math.PI * 1.25;     // 225° → down–left
-const CONE         = Math.PI / 10;       // ±18° velocity cone
-const STREAM_LEN   = 160;                // initial fan length at spawn (px)
-const PERP_SPREAD  = 40;                 // sideways width of fan (px)
-const JET_SPEED    = 30;                 // velocity multiplier
-const JET_DURATION = 10_000;             // 10 000 ms full-speed phase
+const ANGLE=Math.PI*1.25, CONE=Math.PI/0.1;
+const STREAM_LEN=160, PERP_SPREAD=40;
+const JET_SPEED=30, JET_DURATION=2_000;
+
+/* burst parameters */
+const BURST_PARTS=1.5, BURST_SPEED=8;
 
 class NeuralNetwork{
   constructor(){
-    this.canvas = document.getElementById('neuralCanvas');
-    this.ctx    = this.canvas.getContext('2d');
-    this.nodes  = [];
-    this.mouse  = {x:-1e3,y:-1e3};
-    this.animId = null;
-    this.jetEndsAt = 0;
-    this.cfg = {
-      count : 80,
-      size  : 1.5,
-      maxD  : 120,
-      mouseR: 100,
-      scatter: 1.2,
-      return : 0.03,
-      drift  : 0.3,
-      pulse  : 0.02
-    };
+    this.canvas=document.getElementById('neuralCanvas');
+    this.ctx=this.canvas.getContext('2d');
+    this.nodes=[];
+    this.mouse={x:-1e3,y:-1e3};
+    this.animId=null;
+    this.jetEndsAt=0;
+    this.cfg={baseSize:1.5,maxD:120,mouseR:100,scatter:1.2,returnF:0.03,drift:0.3,pulse:0.02};
     this.init();
   }
 
-  /* ───── initialization ───── */
+  /* ───── init / setup ───── */
   init(){
     this.resize();
     this.seedNodes();
     this.bindEvents();
-    setTimeout(()=>this.fireJet(), 3000);   // 3-second delay
+    setTimeout(()=>this.fireJet(),3e3);           // 3-s delay
   }
-
   resize(){
-    this.canvas.width  = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-    this.originX = this.canvas.width  - OFF_X;
-    this.originY = OFF_Y;
+    this.canvas.width=window.innerWidth;
+    this.canvas.height=window.innerHeight;
+    this.originX=this.canvas.width-OFF_X;
+    this.originY=OFF_Y;
   }
-
-  /* spawn nodes already fanned out along the spray path */
   seedNodes(){
-    const perp = ANGLE + Math.PI/2;
-    this.nodes = [];
-    for(let i=0;i<this.cfg.count;i++){
-      const d  = Math.random() * STREAM_LEN;               // forward distance
-      const s  = (Math.random()-0.5) * PERP_SPREAD;        // sideways offset
-      const x  = this.originX + Math.cos(ANGLE)*d + Math.cos(perp)*s;
-      const y  = this.originY + Math.sin(ANGLE)*d + Math.sin(perp)*s;
-      this.nodes.push({x,y,vx:0,vy:0,op:0,sz:this.cfg.size,p:Math.random()*Math.PI*2});
+    const perp=ANGLE+Math.PI/2;
+    this.nodes=[];
+    for(let i=0;i<80;i++){
+      const d=Math.random()*STREAM_LEN, s=(Math.random()-0.5)*PERP_SPREAD;
+      const x=this.originX+Math.cos(ANGLE)*d+Math.cos(perp)*s;
+      const y=this.originY+Math.sin(ANGLE)*d+Math.sin(perp)*s;
+      this.nodes.push({x,y,vx:0,vy:0,op:0,size:this.cfg.baseSize,
+                       p:Math.random()*Math.PI*2,bursted:false});
     }
   }
-
   bindEvents(){
-    window.addEventListener('resize', ()=>this.resize());
-    document.addEventListener('mousemove', e=>{this.mouse.x=e.clientX;this.mouse.y=e.clientY;});
-    document.addEventListener('mouseleave', ()=>{this.mouse.x=this.mouse.y=-1e3;});
+    window.addEventListener('resize',()=>this.resize());
+    document.addEventListener('mousemove',e=>{this.mouse.x=e.clientX;this.mouse.y=e.clientY;});
+    document.addEventListener('mouseleave',()=>{this.mouse.x=this.mouse.y=-1e3;});
   }
 
-  /* kick off the 10-second high-speed jet */
+  /* ───── jet start ───── */
   fireJet(){
-    const jetV = this.cfg.drift * JET_SPEED;
+    const v=this.cfg.drift*JET_SPEED;
     this.nodes.forEach(n=>{
-      const dir = ANGLE + (Math.random()-0.5)*CONE;
-      const spd = jetV * (0.8 + Math.random()*0.4);
-      n.vx = Math.cos(dir)*spd;
-      n.vy = Math.sin(dir)*spd;
-      n.op = 0.6;                    // fade in immediately
+      const dir=ANGLE+(Math.random()-0.5)*CONE, spd=v*(.8+Math.random()*0.4);
+      n.vx=Math.cos(dir)*spd; n.vy=Math.sin(dir)*spd; n.op=0.6;
     });
-    this.jetEndsAt = performance.now() + JET_DURATION;
+    this.jetEndsAt=performance.now()+JET_DURATION;
     this.animate();
   }
 
-  /* ───── per-frame update & draw ───── */
+  /* ───── burst helper ───── */
+  spawnBurst(x,y){
+    for(let i=0;i<BURST_PARTS;i++){
+      const dir=i/BURST_PARTS*Math.PI*2, spd=BURST_SPEED*(.8+Math.random()*0.4);
+      this.nodes.push({x,y,
+        vx:Math.cos(dir)*spd, vy:Math.sin(dir)*spd,
+        op:0.8, size:this.cfg.baseSize*0.9,
+        p:Math.random()*Math.PI*2, bursted:true   // fragments shouldn’t burst again
+      });
+    }
+  }
+
+  /* ───── per-frame update ───── */
   update(){
-    const now      = performance.now();
-    const jetPhase = now < this.jetEndsAt;          // true for first 10 s
-    const damp     = jetPhase ? 1.00 : 0.99;        // **no damping** during jet
+    const now=performance.now(), jet=now<this.jetEndsAt, damp=jet?1:0.99;
 
     this.nodes.forEach(n=>{
       /* scatter from cursor */
       const dx=this.mouse.x-n.x, dy=this.mouse.y-n.y, dist=Math.hypot(dx,dy);
-      if(dist < this.cfg.mouseR){
-        const f   = (this.cfg.mouseR - dist) / this.cfg.mouseR;
-        const ang = Math.atan2(dy,dx);
-        n.vx -= Math.cos(ang)*f*this.cfg.scatter;
-        n.vy -= Math.sin(ang)*f*this.cfg.scatter;
+      if(dist<this.cfg.mouseR){
+        const f=(this.cfg.mouseR-dist)/this.cfg.mouseR, ang=Math.atan2(dy,dx);
+        n.vx-=Math.cos(ang)*f*this.cfg.scatter; n.vy-=Math.sin(ang)*f*this.cfg.scatter;
       }
 
-      /* gentle drift only after jet phase */
-      if(!jetPhase){
-        n.vx += (Math.random()-0.5)*0.01;
-        n.vy += (Math.random()-0.5)*0.01;
+      /* gentle drift after jet phase */
+      if(!jet){
+        n.vx+=(Math.random()-0.5)*0.01; n.vy+=(Math.random()-0.5)*0.01;
         const cx=this.canvas.width/2, cy=this.canvas.height/2;
-        n.vx += (cx - n.x) * this.cfg.return * 1e-4;
-        n.vy += (cy - n.y) * this.cfg.return * 1e-4;
+        n.vx+=(cx-n.x)*this.cfg.returnF*1e-4; n.vy+=(cy-n.y)*this.cfg.returnF*1e-4;
       }
 
       /* damping */
-      n.vx *= damp;
-      n.vy *= damp;
+      n.vx*=damp; n.vy*=damp;
 
-      /* position update & bounds */
-      n.x += n.vx; n.y += n.vy;
-      if(n.x<0||n.x>this.canvas.width){n.vx*=-0.5; n.x=Math.max(0,Math.min(this.canvas.width,n.x));}
-      if(n.y<0||n.y>this.canvas.height){n.vy*=-0.5; n.y=Math.max(0,Math.min(this.canvas.height,n.y));}
+      /* move */
+      n.x+=n.vx; n.y+=n.vy;
 
-      n.p += this.cfg.pulse;
+      /* wall hit → reflect + one-time burst */
+      let hit=false;
+      if(n.x<=0||n.x>=this.canvas.width){ n.vx*=-1; hit=true; }
+      if(n.y<=0||n.y>=this.canvas.height){ n.vy*=-1; hit=true; }
+
+      if(hit && !n.bursted){
+        this.spawnBurst(n.x, n.y);
+        n.bursted=true;              // only burst once
+      }
+
+      /* keep inside bounds */
+      n.x=Math.max(0,Math.min(this.canvas.width ,n.x));
+      n.y=Math.max(0,Math.min(this.canvas.height,n.y));
+
+      n.p+=this.cfg.pulse;
     });
   }
 
@@ -1681,90 +1674,76 @@ class NeuralNetwork{
       for(let j=i+1;j<nodes.length;j++){
         const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y, d=Math.hypot(dx,dy);
         if(d<this.cfg.maxD){
-          const o=(1-d/this.cfg.maxD)*0.3, t=Math.max(0.3,(1-d/this.cfg.maxD)*1.2);
-          c.strokeStyle=`rgba(255,255,255,${o})`;
-          c.lineWidth=t;
-          c.beginPath();c.moveTo(nodes[i].x,nodes[i].y);c.lineTo(nodes[j].x,nodes[j].y);c.stroke();
+          const o=(1-d/this.cfg.maxD)*0.3;
+          c.strokeStyle=`rgba(255,255,255,${o})`; c.lineWidth=0.5;
+          c.beginPath(); c.moveTo(nodes[i].x,nodes[i].y); c.lineTo(nodes[j].x,nodes[j].y); c.stroke();
         }
       }
     }
 
     /* nodes */
     nodes.forEach(n=>{
-      const base  = n.sz*(Math.sin(n.p)*0.3+1);
-      const glowR = base*3;
+      const base=n.size*(Math.sin(n.p)*0.3+1), glow=base*3;
       c.fillStyle=`rgba(255,255,255,${n.op})`;
-      c.beginPath();c.arc(n.x,n.y,base,0,Math.PI*2);c.fill();
-      const g=c.createRadialGradient(n.x,n.y,0,n.x,n.y,glowR);
+      c.beginPath(); c.arc(n.x,n.y,base,0,Math.PI*2); c.fill();
+      const g=c.createRadialGradient(n.x,n.y,0,n.x,n.y,glow);
       g.addColorStop(0,`rgba(100,181,246,${n.op*0.3})`);
       g.addColorStop(1,'rgba(100,181,246,0)');
-      c.fillStyle=g;
-      c.beginPath();c.arc(n.x,n.y,glowR,0,Math.PI*2);c.fill();
+      c.fillStyle=g; c.beginPath(); c.arc(n.x,n.y,glow,0,Math.PI*2); c.fill();
     });
   }
 
   animate(){
-    this.update();this.draw();
-    this.animId = requestAnimationFrame(()=>this.animate());
+    this.update(); this.draw();
+    this.animId=requestAnimationFrame(()=>this.animate());
   }
-  destroy(){this.animId && cancelAnimationFrame(this.animId);}
+  destroy(){ this.animId && cancelAnimationFrame(this.animId); }
 }
 
-/* ──────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────
    4. SLIDESHOW  (unchanged)
-────────────────────────────────────────────────────────────── */
+────────────────────────────────────────── */
 let slideIndex=1, slideInterval;
 function showSlide(n){
   const s=document.querySelectorAll('.slide'), d=document.querySelectorAll('.nav-dot');
-  if(n>s.length)slideIndex=1;if(n<1)slideIndex=s.length;
-  s.forEach(el=>el.classList.remove('active'));d.forEach(el=>el.classList.remove('active'));
-  s[slideIndex-1]?.classList.add('active');d[slideIndex-1]?.classList.add('active');
+  if(n>s.length)slideIndex=1; if(n<1)slideIndex=s.length;
+  s.forEach(el=>el.classList.remove('active')); d.forEach(el=>el.classList.remove('active'));
+  s[slideIndex-1]?.classList.add('active'); d[slideIndex-1]?.classList.add('active');
 }
 function currentSlide(n){clearInterval(slideInterval);slideIndex=n;showSlide(n);autoSlide();}
 function nextSlide(){slideIndex++;showSlide(slideIndex);}
 function autoSlide(){slideInterval=setInterval(nextSlide,4000);}
-function initSlideshow(){showSlide(slideIndex);autoSlide();}initSlideshow();
+function initSlideshow(){showSlide(slideIndex);autoSlide();} initSlideshow();
 
-/* ──────────────────────────────────────────────────────────────
-   5. SCROLL ANIMATIONS & SMOOTH LINKS  (unchanged)
-────────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────
+   5. SCROLL ANIMS & SMOOTH LINKS  (unchanged)
+────────────────────────────────────────── */
 function animateOnScroll(){
   const els=document.querySelectorAll('.fade-in,.slide-in-left,.slide-in-right');
   const obs=new IntersectionObserver(e=>e.forEach(x=>x.isIntersecting&&x.target.classList.add('visible')),
-                                     {threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+                                     {threshold:.1,rootMargin:'0px 0px -30px 0px'});
   els.forEach(el=>obs.observe(el));
 }
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
-  e.preventDefault();
-  document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
-}));
+  e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'}); }));
 document.addEventListener('click',e=>{
   const m=document.getElementById('mobileMenu'), b=document.querySelector('.mobile-menu-btn');
-  if(!m.contains(e.target)&&!b.contains(e.target))m.classList.remove('active');
+  if(!m.contains(e.target)&&!b.contains(e.target)) m.classList.remove('active');
 });
 
-/* ──────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────
    6. BOOTSTRAP EVERYTHING
-────────────────────────────────────────────────────────────── */
+────────────────────────────────────────── */
 let nn;
-document.addEventListener('DOMContentLoaded',()=>{
-  nn=new NeuralNetwork();
-  animateOnScroll();
-});
-window.addEventListener('beforeunload', () => nn?.destroy());
-function toggleBodyScroll(d){document.body.style.overflow = d ? 'hidden' : '';}
-const origToggle = toggleMobileMenu;
-toggleMobileMenu = function(){
-  origToggle();
-  toggleBodyScroll(document.getElementById('mobileMenu').classList.contains('active'));
-};
-window.addEventListener('resize', ()=>nn?.resize());
-document.addEventListener('visibilitychange', ()=>{
-  if(!nn) return;
-  if(document.hidden) nn.destroy();
-  else nn = new NeuralNetwork();
-});
+document.addEventListener('DOMContentLoaded',()=>{ nn=new NeuralNetwork(); animateOnScroll(); });
+window.addEventListener('beforeunload',()=>nn?.destroy());
+function toggleBodyScroll(dis){ document.body.style.overflow=dis?'hidden':''; }
+const origToggle=toggleMobileMenu;
+toggleMobileMenu=function(){ origToggle(); toggleBodyScroll(document.getElementById('mobileMenu').classList.contains('active')); };
+window.addEventListener('resize',()=>nn?.resize());
+document.addEventListener('visibilitychange',()=>{ if(!nn) return; document.hidden?nn.destroy(): (nn=new NeuralNetwork()); });
 </script>
+
 
 </body>
 </html>
