@@ -201,7 +201,7 @@
             position: relative;
             padding-left: 8rem;
             padding-right: 8rem;
-            padding-top: 8rem; /* Space for transparent navbar */
+            padding-top: 4rem; /* Space for transparent navbar */
         }
 
         .hero-content {
@@ -1224,7 +1224,7 @@
             <ul class="nav-links">
                 <li><a href="#about">About</a></li>
                 <li><a href="#speakers">Speakers</a></li>
-                <li><a href="#program">Program</a></li>
+                <li><a href="program.html">Program</a></li>
                 <li><a href="#partners">Partners</a></li>
                 <li><a href="#join">Join</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -1513,26 +1513,17 @@
     </footer>
 
  <script>
-/* ─────────────────────────────────────────
-   1. COUNTDOWN TIMER  (unchanged)
-────────────────────────────────────────── */
+/* ───────────────────────── 1. COUNTDOWN (unchanged) ───────────────────────── */
 function updateCountdown(){
-  const eventDate=new Date('October 9, 2025 09:00:00').getTime();
-  const now=Date.now(), d=eventDate-now;
-  const days=Math.floor(d/864e5), hours=Math.floor(d%864e5/36e5),
-        minutes=Math.floor(d%36e5/6e4), seconds=Math.floor(d%6e4/1e3);
-  document.getElementById('days').textContent=days;
-  document.getElementById('hours').textContent=hours;
-  document.getElementById('minutes').textContent=minutes;
-  document.getElementById('seconds').textContent=seconds;
-  if(d<0) document.getElementById('countdown').innerHTML=
-    '<div class="countdown-item"><span class="countdown-number">Event Started!</span></div>';
+  const eventDate = new Date('October 9, 2025 09:00:00').getTime(),
+        diff = eventDate - Date.now(),
+        d=[864e5,36e5,6e4,1e3], ids=['days','hours','minutes','seconds'];
+  ids.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.textContent=Math.floor(diff%(d[i-1]||Infinity)/d[i]);});
+  if(diff<0) document.getElementById('countdown').innerHTML='<div class="countdown-item"><span class="countdown-number">Event Started!</span></div>';
 }
 setInterval(updateCountdown,1e3); updateCountdown();
 
-/* ─────────────────────────────────────────
-   2. NAV + PROGRESS BAR  (unchanged)
-────────────────────────────────────────── */
+/* ───────────── 2. NAV helpers (unchanged) ───────────── */
 function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('active');}
 function updateProgressBar(){
   const st=document.documentElement.scrollTop||document.body.scrollTop,
@@ -1542,206 +1533,155 @@ function updateProgressBar(){
 function updateNavBackground(){document.getElementById('header').classList.toggle('scrolled',window.pageYOffset>50);}
 window.addEventListener('scroll',()=>{updateProgressBar();updateNavBackground();});
 
-/* ─────────────────────────────────────────
-   3. NEURAL-NETWORK SPRAY + ONE-TIME BURST
-────────────────────────────────────────── */
-
-/* layout helpers */
+/* ───────────── 3.  NEURAL-NETWORK CANVAS ───────────── */
 const CM2PX=96/2.54, OFF_X=9*CM2PX, OFF_Y=9*CM2PX;
-
-/* spray parameters */
-const ANGLE=Math.PI*1.25, CONE=Math.PI/0.1;
-const STREAM_LEN=160, PERP_SPREAD=40;
-const JET_SPEED=30, JET_DURATION=2_000;
-
-/* burst parameters */
-const BURST_PARTS=1.5, BURST_SPEED=8;
+const ANGLE=Math.PI*1.25, CONE=Math.PI/10, STREAM_LEN=160, PERP_SPREAD=40;
+const JET_SPEED=20, JET_DURATION=5000, BURST_PARTS=100, BURST_SPEED=18;
+const FADE_DELAY=15000, FADE_TIME=3000, FADE_RATE=1/(FADE_TIME/16.67);
+const MAX_NODES=7000,   CONN_LIMIT=1500;                 // NEW caps
 
 class NeuralNetwork{
   constructor(){
     this.canvas=document.getElementById('neuralCanvas');
     this.ctx=this.canvas.getContext('2d');
-    this.nodes=[];
-    this.mouse={x:-1e3,y:-1e3};
-    this.animId=null;
-    this.jetEndsAt=0;
+    this.nodes=[]; this.mouse={x:-1e3,y:-1e3};
+    this.jetEnds=0; this.animId=null;
+    this.fade=1; this.fading=false;
     this.cfg={baseSize:1.5,maxD:120,mouseR:100,scatter:1.2,returnF:0.03,drift:0.3,pulse:0.02};
     this.init();
   }
-
-  /* ───── init / setup ───── */
   init(){
-    this.resize();
-    this.seedNodes();
-    this.bindEvents();
-    setTimeout(()=>this.fireJet(),3e3);           // 3-s delay
+    this.resize(); this.seed(); this.bind();
+    setTimeout(()=>this.startJet(),3000);
+    setTimeout(()=>{this.fading=true;},FADE_DELAY);
   }
-  resize(){
-    this.canvas.width=window.innerWidth;
-    this.canvas.height=window.innerHeight;
-    this.originX=this.canvas.width-OFF_X;
-    this.originY=OFF_Y;
-  }
-  seedNodes(){
+  resize(){this.canvas.width=innerWidth;this.canvas.height=innerHeight;
+           this.originX=this.canvas.width-OFF_X; this.originY=OFF_Y;}
+  seed(){
     const perp=ANGLE+Math.PI/2;
     this.nodes=[];
     for(let i=0;i<80;i++){
-      const d=Math.random()*STREAM_LEN, s=(Math.random()-0.5)*PERP_SPREAD;
-      const x=this.originX+Math.cos(ANGLE)*d+Math.cos(perp)*s;
-      const y=this.originY+Math.sin(ANGLE)*d+Math.sin(perp)*s;
-      this.nodes.push({x,y,vx:0,vy:0,op:0,size:this.cfg.baseSize,
-                       p:Math.random()*Math.PI*2,bursted:false});
+      const d=Math.random()*STREAM_LEN, s=(Math.random()-.5)*PERP_SPREAD;
+      this.nodes.push({x:this.originX+Math.cos(ANGLE)*d+Math.cos(perp)*s,
+                       y:this.originY+Math.sin(ANGLE)*d+Math.sin(perp)*s,
+                       vx:0,vy:0,op:.6,size:this.cfg.baseSize,p:Math.random()*6.28,burst:true});
     }
   }
-  bindEvents(){
-    window.addEventListener('resize',()=>this.resize());
-    document.addEventListener('mousemove',e=>{this.mouse.x=e.clientX;this.mouse.y=e.clientY;});
-    document.addEventListener('mouseleave',()=>{this.mouse.x=this.mouse.y=-1e3;});
+  bind(){
+    addEventListener('resize',()=>this.resize());
+    addEventListener('mousemove',e=>{this.mouse.x=e.clientX;this.mouse.y=e.clientY;});
+    addEventListener('mouseleave',()=>{this.mouse.x=this.mouse.y=-1e3;});
   }
-
-  /* ───── jet start ───── */
-  fireJet(){
+  startJet(){
     const v=this.cfg.drift*JET_SPEED;
     this.nodes.forEach(n=>{
-      const dir=ANGLE+(Math.random()-0.5)*CONE, spd=v*(.8+Math.random()*0.4);
-      n.vx=Math.cos(dir)*spd; n.vy=Math.sin(dir)*spd; n.op=0.6;
+      const dir=ANGLE+(Math.random()-.5)*CONE, spd=v*(.8+Math.random()*.4);
+      n.vx=Math.cos(dir)*spd; n.vy=Math.sin(dir)*spd;
     });
-    this.jetEndsAt=performance.now()+JET_DURATION;
-    this.animate();
+    this.jetEnds=performance.now()+JET_DURATION;
+    this.loop();
   }
-
-  /* ───── burst helper ───── */
-  spawnBurst(x,y){
+  burst(x,y){
+    if(this.nodes.length>MAX_NODES) return;            // cap
     for(let i=0;i<BURST_PARTS;i++){
-      const dir=i/BURST_PARTS*Math.PI*2, spd=BURST_SPEED*(.8+Math.random()*0.4);
-      this.nodes.push({x,y,
-        vx:Math.cos(dir)*spd, vy:Math.sin(dir)*spd,
-        op:0.8, size:this.cfg.baseSize*0.9,
-        p:Math.random()*Math.PI*2, bursted:true   // fragments shouldn’t burst again
-      });
+      const dir=i/BURST_PARTS*Math.PI*2, spd=BURST_SPEED*(.8+Math.random()*.4);
+      this.nodes.push({x,y,vx:Math.cos(dir)*spd,vy:Math.sin(dir)*spd,op:.8,size:this.cfg.baseSize*.9,
+                       p:Math.random()*6.28,burst:true});
     }
   }
-
-  /* ───── per-frame update ───── */
   update(){
-    const now=performance.now(), jet=now<this.jetEndsAt, damp=jet?1:0.99;
+    const now=performance.now(), jet=now<this.jetEnds, damp=jet?1:.99;
+    if(this.fading) this.fade=Math.max(0,this.fade-FADE_RATE);
 
     this.nodes.forEach(n=>{
-      /* scatter from cursor */
-      const dx=this.mouse.x-n.x, dy=this.mouse.y-n.y, dist=Math.hypot(dx,dy);
-      if(dist<this.cfg.mouseR){
-        const f=(this.cfg.mouseR-dist)/this.cfg.mouseR, ang=Math.atan2(dy,dx);
-        n.vx-=Math.cos(ang)*f*this.cfg.scatter; n.vy-=Math.sin(ang)*f*this.cfg.scatter;
+      const dx=this.mouse.x-n.x, dy=this.mouse.y-n.y, d=Math.hypot(dx,dy);
+      if(d<this.cfg.mouseR){
+        const f=(this.cfg.mouseR-d)/this.cfg.mouseR, a=Math.atan2(dy,dx);
+        n.vx-=Math.cos(a)*f*this.cfg.scatter; n.vy-=Math.sin(a)*f*this.cfg.scatter;
       }
+      if(!jet){ n.vx+=(Math.random()-.5)*.01; n.vy+=(Math.random()-.5)*.01;
+        const cx=this.canvas.width/2,cy=this.canvas.height/2;
+        n.vx+=(cx-n.x)*this.cfg.returnF*1e-4; n.vy+=(cy-n.y)*this.cfg.returnF*1e-4; }
+      n.vx*=damp; n.vy*=damp; n.x+=n.vx; n.y+=n.vy;
 
-      /* gentle drift after jet phase */
-      if(!jet){
-        n.vx+=(Math.random()-0.5)*0.01; n.vy+=(Math.random()-0.5)*0.01;
-        const cx=this.canvas.width/2, cy=this.canvas.height/2;
-        n.vx+=(cx-n.x)*this.cfg.returnF*1e-4; n.vy+=(cy-n.y)*this.cfg.returnF*1e-4;
-      }
-
-      /* damping */
-      n.vx*=damp; n.vy*=damp;
-
-      /* move */
-      n.x+=n.vx; n.y+=n.vy;
-
-      /* wall hit → reflect + one-time burst */
       let hit=false;
-      if(n.x<=0||n.x>=this.canvas.width){ n.vx*=-1; hit=true; }
-      if(n.y<=0||n.y>=this.canvas.height){ n.vy*=-1; hit=true; }
+      if(n.x<=0||n.x>=this.canvas.width){n.vx*=-1;hit=true;}
+      if(n.y<=0||n.y>=this.canvas.height){n.vy*=-1;hit=true;}
+      if(hit&&!n.burst){this.burst(n.x,n.y); n.burst=true;}
 
-      if(hit && !n.bursted){
-        this.spawnBurst(n.x, n.y);
-        n.bursted=true;              // only burst once
-      }
-
-      /* keep inside bounds */
-      n.x=Math.max(0,Math.min(this.canvas.width ,n.x));
+      n.x=Math.max(0,Math.min(this.canvas.width,n.x));
       n.y=Math.max(0,Math.min(this.canvas.height,n.y));
-
       n.p+=this.cfg.pulse;
     });
-  }
 
+    if(this.fade===0){this.destroy();}
+  }
   draw(){
-    const c=this.ctx, nodes=this.nodes;
+    const c=this.ctx, pts=this.nodes, f=this.fade;
     c.clearRect(0,0,this.canvas.width,this.canvas.height);
 
-    /* connections */
-    for(let i=0;i<nodes.length;i++){
-      for(let j=i+1;j<nodes.length;j++){
-        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y, d=Math.hypot(dx,dy);
+    /* skip heavy line-drawing once fade started */
+    if(f>.05){
+      const limit=Math.min(CONN_LIMIT,pts.length);      // fast cap
+      for(let i=0;i<limit;i++) for(let j=i+1;j<limit;j++){
+        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.hypot(dx,dy);
         if(d<this.cfg.maxD){
-          const o=(1-d/this.cfg.maxD)*0.3;
-          c.strokeStyle=`rgba(255,255,255,${o})`; c.lineWidth=0.5;
-          c.beginPath(); c.moveTo(nodes[i].x,nodes[i].y); c.lineTo(nodes[j].x,nodes[j].y); c.stroke();
+          const o=(1-d/this.cfg.maxD)*.3*f;
+          c.strokeStyle=`rgba(255,255,255,${o})`; c.lineWidth=.5;
+          c.beginPath(); c.moveTo(pts[i].x,pts[i].y); c.lineTo(pts[j].x,pts[j].y); c.stroke();
         }
       }
     }
 
-    /* nodes */
-    nodes.forEach(n=>{
-      const base=n.size*(Math.sin(n.p)*0.3+1), glow=base*3;
-      c.fillStyle=`rgba(255,255,255,${n.op})`;
-      c.beginPath(); c.arc(n.x,n.y,base,0,Math.PI*2); c.fill();
+    pts.forEach(n=>{
+      const op=n.op*f; if(op<=0) return;
+      const r=n.size*(Math.sin(n.p)*.3+1), glow=r*3;
+      c.fillStyle=`rgba(255,255,255,${op})`;
+      c.beginPath(); c.arc(n.x,n.y,r,0,6.283); c.fill();
       const g=c.createRadialGradient(n.x,n.y,0,n.x,n.y,glow);
-      g.addColorStop(0,`rgba(100,181,246,${n.op*0.3})`);
-      g.addColorStop(1,'rgba(100,181,246,0)');
-      c.fillStyle=g; c.beginPath(); c.arc(n.x,n.y,glow,0,Math.PI*2); c.fill();
+      g.addColorStop(0,`rgba(100,181,246,${op*.3})`); g.addColorStop(1,'rgba(100,181,246,0)');
+      c.fillStyle=g; c.beginPath(); c.arc(n.x,n.y,glow,0,6.283); c.fill();
     });
   }
-
-  animate(){
-    this.update(); this.draw();
-    this.animId=requestAnimationFrame(()=>this.animate());
-  }
-  destroy(){ this.animId && cancelAnimationFrame(this.animId); }
+  loop(){this.update();this.draw();this.animId=requestAnimationFrame(()=>this.loop());}
+  destroy(){this.animId&&cancelAnimationFrame(this.animId);}
 }
 
-/* ─────────────────────────────────────────
-   4. SLIDESHOW  (unchanged)
-────────────────────────────────────────── */
-let slideIndex=1, slideInterval;
+/* ───────────── 4. SLIDESHOW (unchanged) ───────────── */
+let slideIndex=1,slideInterval;
 function showSlide(n){
-  const s=document.querySelectorAll('.slide'), d=document.querySelectorAll('.nav-dot');
-  if(n>s.length)slideIndex=1; if(n<1)slideIndex=s.length;
-  s.forEach(el=>el.classList.remove('active')); d.forEach(el=>el.classList.remove('active'));
-  s[slideIndex-1]?.classList.add('active'); d[slideIndex-1]?.classList.add('active');
+  const s=document.querySelectorAll('.slide'),d=document.querySelectorAll('.nav-dot');
+  if(n>s.length)slideIndex=1;if(n<1)slideIndex=s.length;
+  s.forEach(el=>el.classList.remove('active'));d.forEach(el=>el.classList.remove('active'));
+  s[slideIndex-1]?.classList.add('active');d[slideIndex-1]?.classList.add('active');
 }
 function currentSlide(n){clearInterval(slideInterval);slideIndex=n;showSlide(n);autoSlide();}
 function nextSlide(){slideIndex++;showSlide(slideIndex);}
 function autoSlide(){slideInterval=setInterval(nextSlide,4000);}
 function initSlideshow(){showSlide(slideIndex);autoSlide();} initSlideshow();
 
-/* ─────────────────────────────────────────
-   5. SCROLL ANIMS & SMOOTH LINKS  (unchanged)
-────────────────────────────────────────── */
+/* ───────────── 5. SCROLL ANIMS & LINKS (unchanged) ───────────── */
 function animateOnScroll(){
   const els=document.querySelectorAll('.fade-in,.slide-in-left,.slide-in-right');
   const obs=new IntersectionObserver(e=>e.forEach(x=>x.isIntersecting&&x.target.classList.add('visible')),
-                                     {threshold:.1,rootMargin:'0px 0px -30px 0px'});
+                                    {threshold:.1,rootMargin:'0px 0px -30px 0px'});
   els.forEach(el=>obs.observe(el));
 }
 document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
-  e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'}); }));
+  e.preventDefault();document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});}));
 document.addEventListener('click',e=>{
-  const m=document.getElementById('mobileMenu'), b=document.querySelector('.mobile-menu-btn');
+  const m=document.getElementById('mobileMenu'),b=document.querySelector('.mobile-menu-btn');
   if(!m.contains(e.target)&&!b.contains(e.target)) m.classList.remove('active');
 });
 
-/* ─────────────────────────────────────────
-   6. BOOTSTRAP EVERYTHING
-────────────────────────────────────────── */
+/* ───────────── 6. BOOTSTRAP ───────────── */
 let nn;
-document.addEventListener('DOMContentLoaded',()=>{ nn=new NeuralNetwork(); animateOnScroll(); });
+document.addEventListener('DOMContentLoaded',()=>{nn=new NeuralNetwork();animateOnScroll();});
 window.addEventListener('beforeunload',()=>nn?.destroy());
-function toggleBodyScroll(dis){ document.body.style.overflow=dis?'hidden':''; }
 const origToggle=toggleMobileMenu;
-toggleMobileMenu=function(){ origToggle(); toggleBodyScroll(document.getElementById('mobileMenu').classList.contains('active')); };
+toggleMobileMenu=function(){origToggle();document.body.style.overflow=document.getElementById('mobileMenu').classList.contains('active')?'hidden':'';}
 window.addEventListener('resize',()=>nn?.resize());
-document.addEventListener('visibilitychange',()=>{ if(!nn) return; document.hidden?nn.destroy(): (nn=new NeuralNetwork()); });
+document.addEventListener('visibilitychange',()=>{if(!nn)return;document.hidden?nn.destroy():nn=new NeuralNetwork();});
 </script>
 
 
