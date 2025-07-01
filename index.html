@@ -366,6 +366,26 @@
             height: auto; /* Maintain aspect ratio */
             display: block; /* Remove extra space below image */
         }
+        /* text goes dark when .nav-dark is on <header> */
+        /* baseline text colour (works with or without .scrolled) */
+.header .logo,
+.header .nav-links a { 
+  color: #ffffff;              /* white */
+  transition: color .25s ease;
+}
+
+/* colour ONLY when inside the dark band */
+.header.nav-dark .logo,
+.header.nav-dark .nav-links a {
+  color: #000000;              /* black */
+}
+
+/* optional dark hover */
+.header.nav-dark .nav-links a:hover {
+  background: rgba(0,0,0,0.1);
+}
+
+
 
 /* You might want to remove or adjust previous .content-icon styles if they exist */
 /* .content-icon { display: none; } */
@@ -1530,7 +1550,22 @@ function updateProgressBar(){
         sh=document.documentElement.scrollHeight-document.documentElement.clientHeight;
   document.querySelector('.progress-bar').style.width=st/sh*100+'%';
 }
-function updateNavBackground(){document.getElementById('header').classList.toggle('scrolled',window.pageYOffset>50);}
+/* change blur + text colour on scroll */
+/* blur-effect + dark-text window */
+function updateNavBackground() {
+  const header = document.getElementById('header');
+  const y      = window.pageYOffset || document.documentElement.scrollTop;
+
+  /* translucent blur once past 50 px (unchanged) */
+  header.classList.toggle('scrolled', y > 50);
+
+  /* black-text band ONLY between 1390 px and 1500 px */
+  const darkBand = y >= 840 && y < 2300;
+  header.classList.toggle('nav-dark', darkBand);
+}
+
+
+
 window.addEventListener('scroll',()=>{updateProgressBar();updateNavBackground();});
 
 /* ───────────── 3.  NEURAL-NETWORK CANVAS ───────────── */
