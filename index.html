@@ -832,7 +832,7 @@
         
 
         /* ≤767 px — phone-sized gutters, move bg focal point up */
-         @media (max-width: 767px){
+         /* @media (max-width: 767px){
         .hero      { padding: 0 2rem; background-position: top center; }
         .bot-wrapper{ display: none; }   
                   /* hide robot on small phones */
@@ -1311,11 +1311,13 @@
                 padding: 0 1rem;
             }
             .about-feature{
-            min-height:00px;         /* ~52 % of screen-width ≈ a 4 ∶ 3 card */
+            min-height:400px;         /* ~52 % of screen-width ≈ a 4 ∶ 3 card */
             background-size:cover;   /* show the whole picture */
             background-position:center;
+            
+            } 
+            .bot-wrapper{ display: none; }  
         }
-
         @media (max-width: 480px) {
             .hero h1 {
                 font-size: 1.8rem;
@@ -1339,7 +1341,7 @@
             }
 
             .about-feature {
-                padding: 0.3rem;
+                padding: 3rem;
             }
         }
     </style>
