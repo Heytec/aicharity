@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Raleway', 'Inter', system-ui, -apple-system, sans-serif;
-            background: #1a237e;
+            background: #f78903;
             color: #ffffff;
             overflow-x: hidden;
         }
@@ -202,6 +202,10 @@
             padding-left: 8rem;
             padding-right: 8rem;
             padding-top: 0rem; /* Space for transparent navbar */
+            background-image: url('Blue 3D Chat AI Technology Presentation (2).png');
+            background-size: cover;           /* scale to cover entire area     */
+            background-position: center;      /* keep the focal point centred   */
+            background-repeat: no-repeat;
         }
 
         .hero-content {
@@ -417,63 +421,54 @@
 
 
         .about-feature {
-            padding: 4rem;
-            transition: all 0.4s ease;
-            text-align: left;
             position: relative;
             overflow: hidden;
-            min-height: 600px;
-            width: auto;
+            border-radius: 20px;
+
+            /* make the background image fill the card */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            min-height: 600px;                 /* keep them tall on desktop   */
             display: flex;
-            flex-direction: column;
             justify-content: center;
-        }
+            align-items: center;
+            color: #fff;
 
-        .about-feature:nth-child(1) {
-            background: #2E8B57;
-            color: white;
-            border-radius: 20px ;
-        }
+            padding: 4rem;
+            transition: transform .4s ease, box-shadow .4s ease;
+            }
 
-        .about-feature:nth-child(2) {
-            background: #D2691E;
-            color: white;
-            border-radius: 20px ;
-        }
+            /* subtle dark overlay for readability */
+            /* .about-feature::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.25);
+            transition: background .4s ease;
+            pointer-events: none;
+            } */
 
-        .about-feature:nth-child(3) {
-            background: #D2691E;
-            color: white;
-            border-radius: 20px ;
-        }
-
-        .about-feature:nth-child(4) {
-            background: #2E8B57;
-            color: white;
-            border-radius: 20px ;
-        }
-
-        .about-feature:hover {
+            /* hover state */
+            /* .about-feature:hover {
             transform: translateY(-10px);
             box-shadow: 0 25px 50px rgba(100, 181, 246, 0.6);
-            background: radial-gradient(circle at center, rgba(100, 181, 246, 0.8), var(--original-bg));
-        }
+            }
+            .about-feature:hover::after {
+            background: radial-gradient(circle at center,
+                                        rgba(100,181,246,.8) 0%,
+                                        rgba(0,0,0,.25) 80%);
+            } */
 
-        .about-feature:nth-child(1):hover {
-            --original-bg: #2E8B57;
-        }
+            /* ───────────────────────────────────
+            Individual backgrounds
+            ─────────────────────────────────── */
+            .feature-1 { background-image: url("1.png"); }
+            .feature-2 { background-image: url("2o.png"); }
+            .feature-3 { background-image: url("3.png"); }
+            .feature-4 { background-image: url("4.png"); }
 
-        .about-feature:nth-child(2):hover {
-            --original-bg: #D2691E;
-        }
-
-        .about-feature:nth-child(3):hover {
-            --original-bg: #D2691E;
-        }
-
-        .about-feature:nth-child(4):hover {
-            --original-bg: #2E8B57;
-        }
 
         .about-feature-icon {
             width: 60px;
@@ -525,14 +520,20 @@
 
         /* Speakers section with direct transition from white */
         .speakers-section {
-            background: #1a237e;
+            /* keep your existing styles */
+            background-color: #1a237e;          /* fallback while img loads  */
             padding: 6rem 0;
             width: 100%;
             position: relative;
             overflow: hidden;
-            min-height: 700px; /* sets a guaranteed height */
+            min-height: 700px;
 
-        }
+            /* 🎨  responsive background image */
+            background-image: url("Blue 3D Chat AI Technology Presentation (2).png");
+            background-size: cover;             /* fill the box, crop excess */
+            background-position: center center; /* always keep focal point   */
+            background-repeat: no-repeat;
+            }
 
         .speakers-section::before {
             content: '';
@@ -578,7 +579,10 @@
         .join-slideshow {
             position: relative;
             padding: 4rem 0;
-            background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+            background-image: url("Blue 3D Chat AI Technology Presentation (2).png");
+            background-size: cover;             /* fill the box, crop excess */
+            background-position: center center; /* always keep focal point   */
+            background-repeat: no-repeat;
             overflow: hidden;
             height: auto;
         }
@@ -732,6 +736,117 @@
             0%, 100% { opacity: 0.6; transform: scale(1); }
             50% { opacity: 0.9; transform: scale(1.05); }
         }
+        /* =======================================================================
+        HERO  –  full-screen section with responsive gutters
+        ======================================================================= */
+        .hero {
+        min-height: 100vh;                         /* take full viewport height   */
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;                        /* so we can absolutely-place the bot */
+        overflow: hidden;                          /* hide slide-in overflow     */
+
+        padding: 0 8rem;                           /* roomy desktop gutters      */
+
+        /* full-bleed background image */
+        background: url("Blue 3D Chat AI Technology Presentation (2).png")
+                    center / cover no-repeat;
+        }
+
+        /* =======================================================================
+        ANIMATED ROBOT
+        ======================================================================= */
+        /* Slide-in from the right */
+        @keyframes bot-slide {
+        from { transform: translateX(140%) scale(.8); opacity: 0; }
+        to   { transform: translateX(0)     scale(1); opacity: 1; }
+        }
+
+        /* Horizontal (Y-axis) one-off spin */
+        /* @keyframes bot-spin-h {
+        from { transform: rotateY(0deg);   }
+        to   { transform: rotateY(360deg); }
+        } */
+
+        /* Gentle up-and-down float */
+        @keyframes bot-float {
+        0%,100% { transform: translateY(0);    }
+        50%     { transform: translateY(-30px);}
+        }
+
+        /* Pulsating blue glow */
+        @keyframes bot-glow {
+        0%,100% { filter: drop-shadow(0 0 0px  rgba(0,140,255,0)); }
+        50%     { filter: drop-shadow(0 0 12px rgba(0,140,255,.7)); }
+        }
+
+        /* Wrapper governs slide-in, float & glow */
+        .bot-wrapper{
+        position: absolute;
+        right: 2rem;                    /* same as hero gutter           */
+        bottom: 8rem;
+        width: clamp(900px, 20vw, 900px);
+        pointer-events: none;
+        perspective: 1000px;            /* gives depth to the Y spin     */
+
+        animation:
+            bot-slide .8s  ease-out   0s   forwards,
+            bot-float 4s   ease-in-out 2.3s infinite,
+            bot-glow  4s   ease-in-out 2.3s infinite;
+        }
+
+        /* Image does the spin only */
+        .bot-img{
+        width: 100%;
+        display: block;
+
+        transform-style: preserve-3d;   /* needed for 3-D spin */
+        -webkit-transform-style: preserve-3d;
+
+        animation: bot-spin-h 1.5s linear .8s forwards;
+        }
+
+        /* =======================================================================
+        RESPONSIVE BREAKPOINTS  (mobile-first tweaks)
+        ======================================================================= */
+
+        /* ≤1199 px — slightly tighter gutters */
+        @media (max-width: 1199px){
+        .hero      { padding: 0 6rem; }
+        .bot-wrapper{ right: 6rem;   }
+        }
+
+        /* ≤991 px — stack hero content vertically */
+        @media (max-width: 991px){
+        .hero{
+            padding: 0 4rem;
+            flex-direction: column;
+            text-align: center;
+            gap: 2rem;
+        }
+        .bot-wrapper{ position: static; margin-top: 2rem; }
+        }
+        
+
+        /* ≤767 px — phone-sized gutters, move bg focal point up */
+        @media (max-width: 767px){
+        .hero      { padding: 0 2rem; background-position: top center; }
+        .bot-wrapper{ display: none; }         /* hide robot on small phones */
+        }
+
+        /* ≤575 px — minimal gutters, center everything */
+        @media (max-width: 575px){
+        .hero{ padding: 1.25rem 1rem; justify-content: center; }
+        }
+
+        /* Short, wide screens (e.g. laptop split view) */
+        @media (max-height: 700px){
+        .hero{ min-height: 700px; }
+        }
+
+
 
         .hero h1 {
             font-size: clamp(2rem, 5vw, 3.5rem);
@@ -1041,7 +1156,7 @@
 
         /* Footer */
         .footer {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(31, 29, 112);
             padding: 3rem 2rem;
             text-align: center;
             margin-top: 0%;
@@ -1117,6 +1232,7 @@
         }
 
         /* Mobile Responsive */
+        
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -1310,55 +1426,42 @@
             
         </div>
         
-        <!-- AI Brain Image Placeholder -->
-        <div class="hero-brain">
-            <!-- Replace this div with <img src="your-brain-image.jpg" alt="AI Brain"> when image is ready -->
-            <img src="ChatGPT_Image_Jul_1__2025__02_52_59_PM-removebg-preview (1).png" alt="AI Brain">
-                
+        <div class="bot-wrapper">
+            <img
+            src="Blue 3D Chat AI Technology Presentation (3).png"
+            alt="AI robot"
+            class="bot-img"
+            />
         </div>
+        </div> 
     </section>
 
     <!-- About Section - Full width with white background -->
     <section id="about" class="about-section">
         <h2 class="about-title fade-in">About Forum</h2>
+
         <div class="about-grid">
-            <div class="about-feature fade-in">
-                <div class="about-feature-icon">
-                    <i class="fas fa-microchip"></i>
-                </div>
-                <h4>Connect Hub: Powering Africa's AI Ambitions with Next-Gen Infrastructure</h4>
-                <p>The Connect Hub at AI & Humanity Forum 2025 is where Africa's AI ambitions meet the power of technology. This space is dedicated to deep, solutions-oriented conversations around the infrastructure needed to support and scale AI across the continent.</p>
-                
-            </div>
-            
-            <div class="about-feature fade-in">
-                <div class="about-feature-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <h4>Innovate Hub: Fuelling Africa's AI Revolution Through Talent, Startups & Scalable Solutions</h4>
-                <p>The Innovate Hub at AI & Humanity Forum 2025 is where their stories, ideas, and breakthroughs come alive. Africa's AI future is being shaped by bold innovators, visionary entrepreneurs, and a rising generation of digital talent.</p>
-                
-            </div>
-            
-            <div class="about-feature fade-in">
-                <div class="about-feature-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <h4>Transform Hub: Shaping Africa's Future Through Data, Ethics & Inclusive AI Governance</h4>
-                <p>The Transform Hub at AI & Humanity Forum 2025 is a collaborative think space where bold ideas and frameworks come together to shape the ethical, secure, and inclusive governance of AI and data across Africa.</p>
-                
-            </div>
-            
-            <div class="about-feature fade-in">
-                <div class="about-feature-icon">
-                    <i class="fas fa-palette"></i>
-                </div>
-                <h4>AI and the Creative Economy hub: Transforming Sports, Art, Music, and Storytelling in Africa</h4>
-                <p>This aims to explore the transformative impact of AI on Africa's creative economy, including music, film, fashion, digital art, and storytelling, while fostering innovation in sports and entertainment.</p>
-                
-            </div>
+            <!-- Card 1 -->
+            <div class="about-feature feature-1 fade-in"
+                role="img"
+                aria-label="AI and the Creative Economy hub"></div>
+
+            <!-- Card 2 -->
+            <div class="about-feature feature-2 fade-in"
+                role="img"
+                aria-label="AI and the Creative Economy hub"></div>
+
+            <!-- Card 3 -->
+            <div class="about-feature feature-3 fade-in"
+                role="img"
+                aria-label="AI and the Creative Economy hub"></div>
+
+            <!-- Card 4 -->
+            <div class="about-feature feature-4 fade-in"
+                role="img"
+                aria-label="AI and the Creative Economy hub"></div>
         </div>
-    </section>
+        </section>
 
     <!-- Speakers Section - Compact with bluish opaque background -->
     <section id="speakers" class="speakers-section">
@@ -1379,7 +1482,7 @@
             
             <div class="speaker-card slide-in-right">
                 <!-- Replace this div with <img src="speaker2.jpg" alt="James Kariuki"> when image is ready -->
-                <img src="2.png"style= "height: 10rem;width:auto ;" alt="James Kariuki"> 
+                <img src="prof.png"style= "height: 10rem;width:auto ;" alt="James Kariuki"> 
                 <h3 class="speaker-name">James Kariuki</h3>
                 <p class="speaker-title">Founder & CEO</p>
                 
@@ -1397,7 +1500,7 @@
             
             <div class="speaker-card slide-in-right">
                 <!-- Replace this div with <img src="speaker4.jpg" alt="Samuel Mwangi"> when image is ready -->
-                <img src="2.png" style= "height: 10rem;width:auto ;"alt="James Kariuki"> 
+                <img src="prof.png" style= "height: 10rem;width:auto ;"alt="James Kariuki"> 
                 <h3 class="speaker-name">Samuel Mwangi</h3>
                 <p class="speaker-title">Impact Investment Partner</p>
                 <p class="speaker-company">Africa AI Ventures</p>
@@ -1417,7 +1520,7 @@
             </div>
             <h3>UNHCR</h3>
             <p><strong>United Nations Refugee Agency</strong></p>
-            <p style="margin-top: 1rem; color: #001350; font-size: 0.85rem;">Leading humanitarian organization focused on refugee protection and assistance worldwide, bringing decades of experience in crisis response and humanitarian innovation.</p>
+            
         </div>
         <div class="content-card slide-in-right">
             <!-- Replaced Font Awesome icon with an actual image logo -->
@@ -1426,7 +1529,7 @@
             </div>
             <h3>Oppenheimer Generations</h3>
             <p><strong>Jonathan Oppenheimer: Oppenheimer Generations Philanthropies</strong></p>
-            <p style="margin-top: 1rem; color: #001350; font-size: 0.85rem;">Committed to inclusive development and humanitarian relevance across Africa, supporting sustainable impact initiatives and ethical AI development.</p>
+            
         </div>
     </div>
 </section>
