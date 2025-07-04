@@ -346,6 +346,21 @@
             z-index: 2;
         }
 
+
+          /* ─────────────────────────────────────────────
+   PHONES (≤ 600 px) → show ONLY the first card
+───────────────────────────────────────────── */
+@media (max-width: 600px){
+
+    /* one card per row */
+    .speakers-grid{
+        grid-template-columns: 1fr;
+    }
+
+  
+}
+
+
         /* Enhanced About Section - Full width with white background */
         .about-section {
             background-color: rgb(255, 255, 255);/* White to light blue gradient */
@@ -1299,11 +1314,11 @@
                 gap: 0.8rem;
             }
 
-            .speakers-grid {
+            /* .speakers-grid {
                 grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
                 gap: 1rem;
                 padding: 0 1rem;
-            }
+            } */
 
             .about-grid {
                 grid-template-columns: 1fr;
@@ -1481,7 +1496,7 @@
         <div class="speakers-grid">
             <div class="speaker-card slide-in-left">
                 <!-- Replace this div with <img src="speaker1.jpg" alt="Dr. Amina Wanjiku"> when image is ready -->
-                <img src="2.png"style= "height: 10rem;width:auto ;" alt="Dr. Amina Wanjiku">
+                <img src="2.png"style= "height: 20rem;width:auto ;" alt="Dr. Amina Wanjiku">
                 <h3 class="speaker-name">Dr. Amina Wanjiku</h3>
                 <p class="speaker-title">AI Ethics Researcher & Policy Advisor</p>
                 
@@ -1490,7 +1505,7 @@
             
             <div class="speaker-card slide-in-right">
                 <!-- Replace this div with <img src="speaker2.jpg" alt="James Kariuki"> when image is ready -->
-                <img src="prof.png"style= "height: 10rem;width:auto ;" alt="James Kariuki"> 
+                <img src="prof.png"style= "height: 20rem;width:auto ;" alt="James Kariuki"> 
                 <h3 class="speaker-name">James Kariuki</h3>
                 <p class="speaker-title">Founder & CEO</p>
                 
@@ -1499,7 +1514,7 @@
             
             <div class="speaker-card slide-in-left">
                 <!-- Replace this div with <img src="speaker3.jpg" alt="Grace Nyambura"> when image is ready -->
-                <img src="2.png" style= "height: 10rem;width:auto ;"> 
+                <img src="2.png" style= "height: 20rem;width:auto ;"> 
                 <h3 class="speaker-name">Grace Nyambura</h3>
                 <p class="speaker-title">Humanitarian Innovation Director</p>
                 
@@ -1508,13 +1523,18 @@
             
             <div class="speaker-card slide-in-right">
                 <!-- Replace this div with <img src="speaker4.jpg" alt="Samuel Mwangi"> when image is ready -->
-                <img src="prof.png" style= "height: 10rem;width:auto ;"alt="James Kariuki"> 
+                <img src="prof.png" style= "height: 20rem;width:auto ;"alt="James Kariuki"> 
                 <h3 class="speaker-name">Samuel Mwangi</h3>
                 <p class="speaker-title">Impact Investment Partner</p>
                 <p class="speaker-company">Africa AI Ventures</p>
             </div>
         </div>
     </section>
+
+
+
+    
+    
      <!-- Partners Section - Goldish-blue gradient background -->
     <section id="partners" class="partners-section">
     <h2 class="section-title fade-in">Early Partners</h2>
