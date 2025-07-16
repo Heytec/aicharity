@@ -375,7 +375,7 @@
             align-items: center;
             margin-bottom: 10px;
             height: 90px;
-            width: 170px; /* Set the target width here */
+            width: 200px; /* Set the target width here */
             overflow: hidden; /* Prevent overflow if logos are too big */
         }
 
@@ -384,6 +384,9 @@
             height: auto;           /* Maintain aspect ratio */
             object-fit: contain;    /* Ensure the whole logo fits inside without distortion */
             display: block;
+            align-self: 'center';
+            margin-left: 20%;
+            overflow: auto; 
         }
 
                 /* text goes dark when .nav-dark is on <header> */
@@ -1003,9 +1006,12 @@
             border: 1px solid rgba(100, 181, 246, 0.4);
             border-radius: 15px;
             padding: 2rem;
+            text-align: center;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            /* align-items: center;
+            justify-content: center; */
         }
 
         .content-card:hover {
@@ -1025,6 +1031,7 @@
             font-size: 1.2rem;
             color: white;
             margin-bottom: 1rem;
+            
         }
 
         .content-card h3 {
@@ -1032,12 +1039,14 @@
             margin-bottom: 0.8rem;
             font-size: 1.1rem;
             font-weight: 600;
+            margin-left: 2%;
         }
 
         .content-card p {
             color: #e3f2fd;
             line-height: 1.5;
             font-size: 0.9rem;
+            margin-left: 10%;
         }
 
         /* Program Timeline */
@@ -1360,6 +1369,12 @@
             .about-feature {
                 padding: 3rem;
             }
+            .partner-logo{
+                margin-left: 40%;
+                width: auto;
+                height: auto;
+                object-fit: contain;
+            }
         }
     </style>
 </head>
@@ -1556,7 +1571,7 @@
         <div class="content-card slide-in-right">
             <!-- Replaced Font Awesome icon with an actual image logo -->
             <div class="content-logo-container">
-                <img src="open logo.png" alt="Oppenheimer Generations Logo" class="partner-logo">
+                <img src="Oppenheimer-Generations-Foundation_Transparent.png" alt="Oppenheimer Generations Logo" class="partner-logo">
             </div>
             <h3>Oppenheimer Generations</h3>
             <p><strong>Oppenheimer Generations Foundation</strong></p>
