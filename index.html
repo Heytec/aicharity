@@ -365,48 +365,50 @@
         .about-section {
             background-color: rgb(255, 255, 255);/* White to light blue gradient */
             color: #333;
-            padding: 4rem 0;
+            padding: 4 rem ,0;
             margin: 0;
             width: 100%;
         }
         .content-logo-container {
-            /* If you want to center the logo within its container */
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 15px; /* Space below the logo */
-            height: 80px; /* Give it a fixed height if needed for consistent layout */
+            margin-bottom: 10px;
+            height: 90px;
+            width: 170px; /* Set the target width here */
+            overflow: hidden; /* Prevent overflow if logos are too big */
         }
 
         .partner-logo {
-            max-width: 100%; /* Ensure the image doesn't overflow its container */
-            max-height: 70px; /* Adjust max height to fit your design */
-            height: auto; /* Maintain aspect ratio */
-            display: block; /* Remove extra space below image */
+            width: 100%;            /* Make image fill the container width */
+            height: auto;           /* Maintain aspect ratio */
+            object-fit: contain;    /* Ensure the whole logo fits inside without distortion */
+            display: block;
         }
-        /* text goes dark when .nav-dark is on <header> */
-        /* baseline text colour (works with or without .scrolled) */
-.header .logo,
-.header .nav-links a { 
-  color: #ffffff;              /* white */
-  transition: color .25s ease;
-}
 
-/* colour ONLY when inside the dark band */
-.header.nav-dark .logo,
-.header.nav-dark .nav-links a {
-  color: #000000;              /* black */
-}
+                /* text goes dark when .nav-dark is on <header> */
+                /* baseline text colour (works with or without .scrolled) */
+        .header .logo,
+        .header .nav-links a { 
+        color: #ffffff;              /* white */
+        transition: color .25s ease;
+        }
 
-/* optional dark hover */
-.header.nav-dark .nav-links a:hover {
-  background: rgba(0,0,0,0.1);
-}
+        /* colour ONLY when inside the dark band */
+        .header.nav-dark .logo,
+        .header.nav-dark .nav-links a {
+        color: #000000;              /* black */
+        }
+
+        /* optional dark hover */
+        .header.nav-dark .nav-links a:hover {
+        background: rgba(0,0,0,0.1);
+        }
 
 
 
-/* You might want to remove or adjust previous .content-icon styles if they exist */
-/* .content-icon { display: none; } */
+        /* You might want to remove or adjust previous .content-icon styles if they exist */
+        /* .content-icon { display: none; } */
        .about-title {
             font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: 700;
@@ -1542,9 +1544,10 @@
     
     <div class="content-grid" style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
         <div class="content-card slide-in-left">
+
             <!-- Replaced Font Awesome icon with an actual image logo -->
             <div class="content-logo-container">
-                <img src="UNHCR-removebg-preview.png" alt="UNHCR Logo" class="partner-logo">
+                <img src="unlogo2.png" alt="UNHCR Logo" class="partner-logo">
             </div>
             <h3>UNHCR</h3>
             <p><strong>United Nations Refugee Agency</strong></p>
@@ -1556,7 +1559,7 @@
                 <img src="open logo.png" alt="Oppenheimer Generations Logo" class="partner-logo">
             </div>
             <h3>Oppenheimer Generations</h3>
-            <p><strong>Oppenheimer Generations Philanthropies</strong></p>
+            <p><strong>Oppenheimer Generations Foundation</strong></p>
 
         </div>
 
