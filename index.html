@@ -547,6 +547,73 @@
             background: rgba(255, 255, 255, 0.3);
             border-color: rgba(255, 255, 255, 0.5);
         }
+        .location-section {
+            max-width: 1280px; /* aligns with other footer content */
+            margin: 1rem auto 4rem; /* top auto, bottom breathing room */
+            padding: 0 1.5rem; /* horizontal gutter on small screens */
+            }
+
+
+            /* Section heading */
+            .location-section h2 {
+            font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+
+
+            /* gold‑blue gradient, same as other titles */
+            background: linear-gradient(135deg, #64b5f6, #ffa726);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            }
+
+
+            /* ========= MAP CONTAINER ========= */
+            .map-container {
+            position: relative; /* so the pin overlay can sit inside */
+            width: 100%;
+            border-radius: 18px;
+            overflow: hidden; /* clip radius */
+
+
+            /* glow + subtle border */
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(100, 181, 246, 0.35);
+            }
+
+
+            /* Responsive iframe */
+            .map-container iframe {
+            display: block;
+            width: 100%;
+            height: 420px;
+            border: 0;
+            }
+            @media (max-width: 768px) {
+            .map-container iframe { height: 320px; }
+            }
+
+
+            /* ========= PIN OVERLAY (fancy) ========= */
+            .map-pin {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -100%); /* center horizontally, above point */
+            pointer-events: none; /* let clicks reach the map */
+            animation: bounce 1.8s infinite ease;
+            }
+            @keyframes bounce {
+            0%,100% { transform: translate(-50%, -110%); }
+            50% { transform: translate(-50%, -125%); }
+            }
+            .map-pin svg {
+            width: 42px;
+            height: 42px;
+            fill: #ffa726;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+            }
 
         /* Speakers section with direct transition from white */
         .speakers-section {
@@ -1472,6 +1539,11 @@
                 10th October 2025 | <span> </span><i class="fas fa-map-marker-alt"></i> Kigali, Rwanda
                 
             </p>
+            <p class="hero-date">
+                <i class="fas fa-map-location-dot"></i>
+                Ubumwe grande hotel <span> </span></i>
+                
+            </p>
             <div style="margin-top: 1rem;">
                 <a href="https://opnform.com/forms/ai-humanity-forum-africa-edition-registration-6hqane" target="_blank" class="cta-button">
                     <i class="fas fa-user-plus"></i> Register Your Interest
@@ -1838,6 +1910,27 @@
 
     <!-- Footer -->
     <footer id="contact" class="footer">
+        <div class="location-section fade-in">
+            <h2>Location</h2>
+            <p style="padding-bottom: 1rem;">Below is the location of the event in Ubumwe Grande Hotel, Kigali, Rwanda</p>
+            
+
+            <div class="map-container">
+            <!-- Decorative bouncing pin -->
+            <div class="map-pin" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>
+            </div>
+
+
+            <!-- Google Maps Embed -->
+            <iframe
+            title="Map – Ubumwe Grande Hotel, Kigali"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            src="https://maps.google.com/maps?q=Ubumwe%20Grande%20Hotel%20Kigali&t=&z=15&ie=UTF8&iwloc=&output=embed">
+            </iframe>
+            </div>
+            </div>
         <div class="section-alt">
         <section class="section">
             <h2 class="section-title fade-in">Join the Conversation</h2>
