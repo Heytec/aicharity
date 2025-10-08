@@ -1970,7 +1970,7 @@
  <script>
 /* ───────────────────────── 1. COUNTDOWN (unchanged) ───────────────────────── */
 function updateCountdown(){
-  const eventDate = new Date('October 9, 2025 09:00:00').getTime(),
+  const eventDate = new Date('October 10, 2025 09:00:00').getTime(),
         diff = eventDate - Date.now(),
         d=[864e5,36e5,6e4,1e3], ids=['days','hours','minutes','seconds'];
   ids.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.textContent=Math.floor(diff%(d[i-1]||Infinity)/d[i]);});
